@@ -1,0 +1,175 @@
+/* Cor do fundo e texto */
+body {
+  background-color: #121212;
+  color: #00ff88; /* verde neon */
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header (Topo) */
+.header {
+  background-color: #1f1f1f;
+  padding: 20px;
+  text-align: center;
+}
+
+.header .logo {
+  font-size: 2rem;  /* Aumentei o tamanho da fonte para "Run SEO" */
+  font-weight: bold;
+  color: #00ff88; /* Verde neon */
+}
+
+/* Menu de navegação */
+.menu {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.menu a {
+  color: #00ff88; /* Verde neon nos links do menu */
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.menu a:hover {
+  text-decoration: underline;
+  color: #00cc66; /* Verde mais claro no hover */
+}
+
+/* Footer */
+.footer {
+  background-color: #1f1f1f;
+  padding: 20px;
+  text-align: center;
+}
+
+.footer .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* Container principal */
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* Cards com informações */
+.card {
+  background-color: #333;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+  display: inline-block;
+  min-width: 160px;
+  text-align: center;
+}
+
+.card strong {
+  color: #00ffcc;
+}
+
+/* Botões */
+.btn {
+  background-color: #00aa55; /* verde escuro */
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #007f3f; /* verde mais escuro no hover */
+}
+
+/* Inputs e selects */
+input, select, button {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: none;
+}
+
+/* Inputs numéricos, mês e data */
+input[type="number"], input[type="month"], input[type="date"] {
+  width: 100%;
+  max-width: 250px;
+}
+
+/* Tabelas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table, th, td {
+  border: 1px solid #444;
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+}
+
+th {
+  background-color: #1f1f1f;
+  color: #00ff88; /* verde neon nos cabeçalhos */
+}
+
+td {
+  background-color: #222;
+  color: #E0E0E0;
+}
+
+/* Filtros */
+.filter-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.filter-container select, .filter-container input {
+  background-color: #333;
+  color: #E0E0E0;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.filter-container select:focus, .filter-container input:focus {
+  outline: none;
+  background-color: #444;
+}
+
+/* Links */
+a {
+  color: #00ff88;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Rodapé */
+footer {
+  background-color: #1f1f1f;
+  text-align: center;
+  padding: 10px;
+  color: #B0B0B0;
+}
+
+footer a {
+  color: #00ff88;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}

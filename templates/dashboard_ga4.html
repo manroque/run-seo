@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="titulo-dashboard">Receita e Tráfego (Google Analytics 4)</h2>
+
+<!-- Cards com métricas principais -->
+<div class="metricas-grid">
+  <div class="card"><strong>Sessões:</strong><br>{{ sessoes }}</div>
+  <div class="card"><strong>Novos Usuários:</strong><br>{{ novos_usuarios }}</div>
+  <div class="card"><strong>Taxa de Conversão:</strong><br>{{ taxa_conversao }}%</div>
+  <div class="card"><strong>Receita:</strong><br>R$ {{ receita }}</div>
+  <div class="card"><strong>Ticket Médio:</strong><br>R$ {{ ticket_medio }}</div>
+  <div class="card"><strong>Investimento:</strong><br>R$ {{ investimento }}</div>
+  <div class="card destaque"><strong>ROI:</strong><br>{{ roi }}%</div>
+</div>
+
+<!-- Gráfico de Receita e Sessões -->
+<section class="grafico">
+  <h3>Receita e Sessões por Mês</h3>
+  <canvas id="graficoReceitaSessoes"></canvas>
+</section>
+
+<!-- Gráfico de Canais de Tráfego -->
+<section class="grafico">
+  <h3>Fontes de Tráfego</h3>
+  <canvas id="graficoCanais"></canvas>
+</section>
+
+<!-- Tabela de páginas vencedoras -->
+<section class="grafico">
+  <h3>Páginas Vencedoras</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>URL</th>
+        <th>Categoria</th>
+        <th>Sessões</th>
+        <th>Receita</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pagina in paginas_vencedoras %}
+      <tr>
+        <td>{{ pagina.url }}</td>
+        <td>{{ pagina.categoria }}</td>
+        <td>{{ pagina.sessoes }}</td>
+        <td>R$ {{ pagina.receita }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<script>
+  const ctx1 = document.getElementById('graficoReceitaSessoes');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: {{ meses | tojson }},
+      datasets: [
+        {
+          label: 'Receita',
+          data: {{ receita_mensal | tojson }},
+          borderColor: 'green',
+          fill: false
+        },
+        {
+          label: 'Sessões',
+          data: {{ sessoes_mensal | tojson }},
+          borderColor: 'blue',
+          fill: false
+        }
+      ]
+    }
+  });
+
+  const ctx2 = document.getElementById('graficoCanais');
+  new Chart(ctx2, {
+    type: 'pie',
+    data: {
+      labels: {{ canais | tojson }},
+      datasets: [{
+        data: {{ canais_valores | tojson }},
+        backgroundColor: ['#4285F4', '#FBBC05', '#EA4335', '#34A853', '#9C27B0']
+      }]
+    }
+  });
+</script>
+{% endblock %}

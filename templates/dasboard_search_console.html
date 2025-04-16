@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1>Search Console - Dashboard</h1>
+
+  <div class="metricas">
+    <div class="card">Impressões: <strong>{{ metricas.impressoes }}</strong></div>
+    <div class="card">Cliques: <strong>{{ metricas.cliques }}</strong></div>
+    <div class="card">CTR: <strong>{{ metricas.ctr }}%</strong></div>
+    <div class="card">Posição Média: <strong>{{ metricas.posicao_media }}</strong></div>
+  </div>
+
+  <h2>Palavras-chave por Mês</h2>
+  <canvas id="graficoPalavras"></canvas>
+
+  <h2>Top Palavras-chave</h2>
+  <canvas id="graficoTopPalavras"></canvas>
+
+  <h2>Origem do Tráfego</h2>
+  <canvas id="graficoOrigem"></canvas>
+
+  <h2>Consultas por Página</h2>
+  <table>
+    <thead>
+      <tr><th>Página</th><th>Consulta</th><th>Cliques</th><th>Impressões</th></tr>
+    </thead>
+    <tbody>
+      {% for consulta in consultas_por_pagina %}
+      <tr>
+        <td>{{ consulta.pagina }}</td>
+        <td>{{ consulta.consulta }}</td>
+        <td>{{ consulta.cliques }}</td>
+        <td>{{ consulta.impressoes }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Classificação de Palavras</h2>
+  <canvas id="graficoClassificacao"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  new Chart(document.getElementById('graficoPalavras'), {
+    type: 'line',
+    data: {{ grafico_palavras | tojson }},
+    options: { responsive: true }
+  });
+
+  new Chart(document.getElementById('graficoTopPalavras'), {
+    type: 'bar',
+    data: {{ top_palavras | tojson }},
+    options: { responsive: true }
+  });
+
+  new Chart(document.getElementById('graficoOrigem'), {
+    type: 'pie',
+    data: {{ origem_trafego | tojson }},
+    options: { responsive: true }
+  });
+
+  new Chart(document.getElementById('graficoClassificacao'), {
+    type: 'line',
+    data: {{ classificacao_palavras | tojson }},
+    options: { responsive: true }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>RunSEO - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">RunSEO</div>
+        <nav class="menu">
+            <a href="{{ url_for('index') }}">Início</a>
+            <a href="{{ url_for('dashboard_ga4') }}">GA4</a>
+            <a href="{{ url_for('dashboard_search_console') }}">Search Console</a>
+            <a href="{{ url_for('calculo_roi') }}">ROI</a>
+            <a href="{{ url_for('importar_csv') }}">Importar CSV</a>
+            <a href="{{ url_for('login_google') }}">Login Google</a>
+        </nav>
+    </header>
+
+    <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flash-messages">
+              {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 RunSEO - UNIVESP.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Importar CSV</h2>
+<form method="POST" enctype="multipart/form-data">
+  <div style="margin: 20px 0;">
+    <label>Escolha o arquivo CSV:</label><br>
+    <input type="file" name="csvfile" required>
+  </div>
+  <button type="submit" class="btn">Importar</button>
+</form>
+{% endblock %}
+
+
