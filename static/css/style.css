@@ -1,175 +1,156 @@
-/* Cor do fundo e texto */
+/* Base geral */
 body {
-  background-color: #121212;
-  color: #00ff88; /* verde neon */
-  font-family: 'Inter', sans-serif;
+    background-color: #121212;
+    color: #d4f7d4;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-/* Header (Topo) */
-.header {
-  background-color: #1f1f1f;
-  padding: 20px;
-  text-align: center;
+/* Navegação */
+nav {
+    background-color: #1e1e1e;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.header .logo {
-  font-size: 2rem;  /* Aumentei o tamanho da fonte para "Run SEO" */
-  font-weight: bold;
-  color: #00ff88; /* Verde neon */
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #6aff6a; /* Verde claro bonito para o logo */
 }
 
-/* Menu de navegação */
-.menu {
-  text-align: center;
-  margin-top: 10px;
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
 }
 
-.menu a {
-  color: #00ff88; /* Verde neon nos links do menu */
-  margin: 0 15px;
-  text-decoration: none;
-  font-weight: 600;
+.nav-links a {
+    color: #98fb98; /* Verde claro para os links */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
 }
 
-.menu a:hover {
-  text-decoration: underline;
-  color: #00cc66; /* Verde mais claro no hover */
+.nav-links a:hover {
+    color: #66ff66; /* Verde ainda mais forte no hover */
 }
 
-/* Footer */
-.footer {
-  background-color: #1f1f1f;
-  padding: 20px;
-  text-align: center;
+/* Conteúdo principal */
+main {
+    padding: 2rem;
 }
 
-.footer .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #ffffff;
+/* Formulários */
+form input,
+form button {
+    display: block;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 400px;
+    background-color: #1e1e1e;
+    color: #d4f7d4;
+    border: 1px solid #333;
+    border-radius: 4px;
 }
 
-/* Container principal */
-.container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 20px;
+form button {
+    background-color: #28a745;
+    border: none;
+    cursor: pointer;
 }
 
-/* Cards com informações */
-.card {
-  background-color: #333;
-  padding: 20px;
-  margin: 10px;
-  border-radius: 8px;
-  display: inline-block;
-  min-width: 160px;
-  text-align: center;
+form button:hover {
+    background-color: #218838;
 }
 
-.card strong {
-  color: #00ffcc;
+/* Títulos */
+h2,
+h3 {
+    color: #66ff66;
 }
 
-/* Botões */
-.btn {
-  background-color: #00aa55; /* verde escuro */
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 5px;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
+/* Flash messages */
+ul.flash {
+    list-style: none;
+    padding: 0;
+    color: #ff6f61;
 }
 
-.btn:hover {
-  background-color: #007f3f; /* verde mais escuro no hover */
+/* Listas */
+ul {
+    list-style: none;
+    padding-left: 0;
 }
 
-/* Inputs e selects */
-input, select, button {
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 5px;
-  border: none;
-}
-
-/* Inputs numéricos, mês e data */
-input[type="number"], input[type="month"], input[type="date"] {
-  width: 100%;
-  max-width: 250px;
-}
-
-/* Tabelas */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-table, th, td {
-  border: 1px solid #444;
-}
-
-th, td {
-  padding: 12px;
-  text-align: center;
-}
-
-th {
-  background-color: #1f1f1f;
-  color: #00ff88; /* verde neon nos cabeçalhos */
-}
-
-td {
-  background-color: #222;
-  color: #E0E0E0;
-}
-
-/* Filtros */
-.filter-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.filter-container select, .filter-container input {
-  background-color: #333;
-  color: #E0E0E0;
-  border: none;
-  padding: 8px;
-  border-radius: 5px;
-}
-
-.filter-container select:focus, .filter-container input:focus {
-  outline: none;
-  background-color: #444;
-}
-
-/* Links */
 a {
-  color: #00ff88;
-  text-decoration: none;
+    color: #98fb98;
+    text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
-/* Rodapé */
-footer {
-  background-color: #1f1f1f;
-  text-align: center;
-  padding: 10px;
-  color: #B0B0B0;
+/* Métricas em cards */
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
-footer a {
-  color: #00ff88;
+.metrics > div {
+    background-color: #1e1e1e;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    color: #66ff66;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s;
 }
 
-footer a:hover {
-  text-decoration: underline;
+.metrics > div:hover {
+    transform: scale(1.03);
+}
+
+/* Tabela de dados */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background-color: #1e1e1e;
+    color: #d4f7d4;
+    font-size: 0.95rem;
+}
+
+th,
+td {
+    border: 1px solid #333;
+    padding: 0.5rem 1rem;
+    text-align: center;
+}
+
+th {
+    background-color: #252526;
+    color: #6aff6a;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #2a2d2e;
+}
+
+tr:hover {
+    background-color: #3e3e42;
+}
+
+.logo img {
+    height: 80px;
+    width: auto;
 }

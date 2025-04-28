@@ -1,22 +1,19 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from datetime import datetime
 
 db = SQLAlchemy()
 
-class SEOData(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    sessoes = db.Column(db.Integer)
-    novos_usuarios = db.Column(db.Integer)
-    conversoes = db.Column(db.Integer)
-    receita = db.Column(db.Float)
-    ticket_medio = db.Column(db.Float)
-    investimento = db.Column(db.Float)
-    roi = db.Column(db.Float)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    uploads = db.relationship('Upload', backref='user', lazy=True)
 
-    def __init__(self, sessoes, novos_usuarios, conversoes, receita, ticket_medio, investimento, roi):
-        self.sessoes = sessoes
-        self.novos_usuarios = novos_usuarios
-        self.conversoes = conversoes
-        self.receita = receita
-        self.ticket_medio = ticket_medio
-        self.investimento = investimento
-        self.roi = roi
+class Upload(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(120), nullable=False)
+    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content_preview = db.Column(db.Text)  # opcional: salvar um resumo
+

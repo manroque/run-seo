@@ -1,167 +1,168 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_session import Session
-import pandas as pd
+from flask import Flask, render_template, redirect, url_for, request, flash, send_file
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
-
-# Importa funções auxiliares do Google OAuth
-from google_auth import iniciar_fluxo, trocar_codigo_por_credenciais
+import pandas as pd
+from models import db, User, Upload
 
 app = Flask(__name__)
-app.secret_key = 'runseo-key'
-app.config['UPLOAD_FOLDER'] = 'data/'
-app.config['SESSION_TYPE'] = 'filesystem'
-Session(app)
+app.config['SECRET_KEY'] = 'chave_secreta_runseo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///runseo.db'
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB máx
 
-# =====================
-# FUNÇÕES AUXILIARES
-# =====================
-def carregar_dados_ga4():
-    caminho_csv = os.path.join(app.config['UPLOAD_FOLDER'], 'ga4_dados.csv')
-    if not os.path.exists(caminho_csv):
-        return None
-    try:
-        df = pd.read_csv(caminho_csv)
-        if df.empty:
-            return None
-        return df
-    except Exception as e:
-        print("Erro ao carregar CSV:", e)
-        return None
+db.init_app(app)
 
-def calcular_metricas_ga4(df):
-    sessoes = df['sessoes'].sum()
-    novos_usuarios = df['novos_usuarios'].sum()
-    conversao = round(df['conversoes'].sum() / max(sessoes, 1) * 100, 2)
-    receita = df['receita'].sum()
-    ticket_medio = round(receita / max(sessoes, 1), 2)
-    investimento = df['investimento'].sum()
-    roi = round(((receita - investimento) / max(investimento, 1)) * 100, 2)
-    return sessoes, novos_usuarios, conversao, receita, ticket_medio, investimento, roi
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.login_message = "Por favor, faça login para acessar esta página."
+login_manager.init_app(app)
 
-# =====================
-# ROTAS PRINCIPAIS
-# =====================
+with app.app_context():
+    db.create_all()
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route('/')
-def index():
-    return render_template('inicio.html')
+def home():
+    return redirect(url_for('login'))
 
-@app.route('/escolher-opcao')
-def escolher_opcao():
-    return render_template('escolher_opcao.html')
-
-@app.route('/importar-csv', methods=['GET', 'POST'])
-def importar_csv():
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if request.method == 'POST':
-        file = request.files.get('csvfile')
-        if not file or file.filename == '':
-            flash("Arquivo CSV não selecionado.", "danger")
-            return redirect(request.url)
+        email = request.form['email']
+        password = request.form['password']
+        if User.query.filter_by(email=email).first():
+            flash('E-mail já registrado.')
+            return redirect(url_for('register'))
+        hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
+        new_user = User(email=email, password=hashed_pw)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Cadastro realizado com sucesso. Faça login.')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('dashboard'))
+        flash('Credenciais inválidas.')
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    uploads = Upload.query.filter_by(user_id=current_user.id).order_by(Upload.upload_date.desc()).all()
+    return render_template('dashboard.html', uploads=uploads)
+
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+    if request.method == 'POST':
+        file = request.files['csv_file']
         if file and file.filename.endswith('.csv'):
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'ga4_dados.csv'))
-            flash("Arquivo importado com sucesso!", "success")
-            return redirect(url_for('dashboard_ga4'))
-        flash("Formato inválido. Envie um arquivo .csv", "danger")
-    return render_template('importar_csv.html')
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            file.save(filepath)
 
-@app.route('/dashboard/search-console')
-def dashboard_search_console():
-    metricas = {
-        "impressoes": 12000,
-        "cliques": 1300,
-        "ctr": round((1300 / 12000) * 100, 2),
-        "posicao_media": 6.7
-    }
-    grafico_palavras = {
-        "labels": ["Jan", "Fev", "Mar"],
-        "datasets": [{"label": "Palavras-chave", "data": [120, 150, 200], "borderColor": "orange", "fill": False}]
-    }
-    top_palavras = {
-        "labels": ["keyword1", "keyword2", "keyword3"],
-        "datasets": [{"label": "Top Palavras", "data": [300, 200, 100], "backgroundColor": "blue"}]
-    }
-    origem_trafego = {
-        "labels": ["Google", "Instagram", "Direto"],
-        "datasets": [{"data": [60, 25, 15], "backgroundColor": ["#4285F4", "#E1306C", "#34A853"]}]
-    }
-    consultas_por_pagina = [
-        {"pagina": "/home", "consulta": "exemplo1", "cliques": 50, "impressoes": 300},
-        {"pagina": "/produto", "consulta": "exemplo2", "cliques": 20, "impressoes": 120}
-    ]
-    classificacao_palavras = {
-        "labels": ["Jan", "Fev", "Mar"],
-        "datasets": [{"label": "Posição Média", "data": [6.5, 5.9, 6.7], "borderColor": "purple", "fill": False}]
-    }
-    return render_template("dashboard_search_console.html",
-                           metricas=metricas,
-                           grafico_palavras=grafico_palavras,
-                           top_palavras=top_palavras,
-                           origem_trafego=origem_trafego,
-                           consultas_por_pagina=consultas_por_pagina,
-                           classificacao_palavras=classificacao_palavras)
+            df = pd.read_csv(filepath)
+            preview = df.head().to_json()  # opcional para salvar
+            new_upload = Upload(filename=filename, user_id=current_user.id, content_preview=preview)
+            db.session.add(new_upload)
+            db.session.commit()
+            return redirect(url_for('insights', upload_id=new_upload.id))
+        flash('Por favor, envie um arquivo CSV válido.')
+    return render_template('upload.html')
 
-@app.route('/dashboard/ga4')
-def dashboard_ga4():
-    df = carregar_dados_ga4()
-    if df is None:
-        flash("Erro ao carregar dados do GA4. Importe um CSV primeiro.", "danger")
-        return render_template("dashboard_ga4.html", data=None, sessoes=0, novos_usuarios=0, 
-                               taxa_conversao=0, receita=0, ticket_medio=0,
-                               investimento=0, roi=0, 
-                               meses=[], receita_mensal=[], sessoes_mensal=[],
-                               canais=[], canais_valores=[], paginas_vencedoras=[])
+@app.route('/insights/<int:upload_id>')
+@login_required
+def insights(upload_id):
+    upload = Upload.query.get_or_404(upload_id)
+    if upload.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('dashboard'))
 
-    sessoes, novos_usuarios, conversao, receita, ticket_medio, investimento, roi = calcular_metricas_ga4(df)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], upload.filename)
 
-    meses = df['mes'].unique().tolist()
-    receita_mensal = df.groupby('mes')['receita'].sum().tolist()
-    sessoes_mensal = df.groupby('mes')['sessoes'].sum().tolist()
-    canais = df['fonte'].unique().tolist()
-    canais_valores = df.groupby('fonte')['sessoes'].sum().tolist()
-    paginas_vencedoras = df[['url', 'categoria', 'sessoes', 'receita']].to_dict(orient='records')
+    try:
+        df_raw = pd.read_csv(filepath, sep=None, engine='python', encoding='utf-8', decimal=',', thousands='.')
+    except Exception as e:
+        flash(f'Erro ao ler o CSV: {str(e)}')
+        return redirect(url_for('dashboard'))
 
-    return render_template("dashboard_ga4.html",
-                           data=request.args.get('data'),
-                           sessoes=sessoes,
+    df = df_raw.copy()
+    df = df.apply(pd.to_numeric, errors='coerce')  # tenta converter tudo que puder para numérico
+
+    # Identificação automática com fallback para índice
+    def get_col(df, names, fallback_idx):
+        for name in names:
+            if name in df.columns:
+                return df[name]
+        if fallback_idx < len(df.columns):
+            return df.iloc[:, fallback_idx]
+        return pd.Series([0]*len(df))
+
+    try:
+        total_impressao = get_col(df, ['Impressões'], 0).sum()
+        total_cliques = get_col(df, ['Cliques'], 1).sum()
+        ctr = (total_cliques / total_impressao) * 100 if total_impressao > 0 else 0
+        posicao_media = get_col(df, ['Posição Média'], 2).mean()
+        novos_usuarios = get_col(df, ['Novos Usuários'], 3).sum()
+        conversoes = get_col(df, ['Conversões'], 4).sum()
+        taxa_conversao = (conversoes / total_cliques) * 100 if total_cliques > 0 else 0
+        receita = get_col(df, ['Receita'], 5).sum()
+        ticket_medio = receita / conversoes if conversoes > 0 else 0
+        total_sessoes = get_col(df, ['Sessões'], 6).sum()
+    except Exception as e:
+        flash(f'Erro ao calcular métricas: {str(e)}')
+        return redirect(url_for('dashboard'))
+
+    return render_template('insights.html',
+                           total_impressao=total_impressao,
+                           total_cliques=total_cliques,
+                           ctr=ctr,
+                           posicao_media=posicao_media,
                            novos_usuarios=novos_usuarios,
-                           taxa_conversao=conversao,
+                           conversoes=conversoes,
+                           taxa_conversao=taxa_conversao,
                            receita=receita,
                            ticket_medio=ticket_medio,
-                           investimento=investimento,
-                           roi=roi,
-                           meses=meses,
-                           receita_mensal=receita_mensal,
-                           sessoes_mensal=sessoes_mensal,
-                           canais=canais,
-                           canais_valores=canais_valores,
-                           paginas_vencedoras=paginas_vencedoras)
+                           receita_total=receita,
+                           total_sessoes=total_sessoes,
+                           origem_trafego="Orgânico",
+                           headers=list(df_raw.columns),
+                           rows=df_raw.values.tolist())
 
 @app.route('/roi', methods=['GET', 'POST'])
-def calculo_roi():
-    roi = None
+@login_required
+def roi():
+    resultado = None
     if request.method == 'POST':
         receita = float(request.form['receita'])
-        investimento = float(request.form['investimento'])
-        if investimento != 0:
-            roi = round(((receita - investimento) / investimento) * 100, 2)
+        custo = float(request.form['custo'])
+        if custo == 0:
+            resultado = "O custo não pode ser zero."
         else:
-            roi = 0
-    return render_template('calculo_roi.html', roi=roi)
-
-# =====================
-# LOGIN COM GOOGLE
-# =====================
-@app.route('/login-google')
-def login_google():
-    auth_url = iniciar_fluxo()
-    return redirect(auth_url)
-
-@app.route('/callback')
-def callback():
-    code = request.args.get('code')
-    trocar_codigo_por_credenciais(code)
-    flash("Login com Google realizado com sucesso!", "success")
-    return redirect(url_for('escolher_opcao'))
+            roi_valor = (receita - custo) / custo
+            resultado = f"ROI: {roi_valor:.2f} ({roi_valor * 100:.2f}%)"
+    return render_template('roi.html', resultado=resultado)
 
 if __name__ == '__main__':
     app.run(debug=True)

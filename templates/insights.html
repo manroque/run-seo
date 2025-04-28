@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Insights{% endblock %}
+{% block content %}
+<h2>Insights</h2>
+<div class="metrics">
+    <div>Total de Impressões: {{ total_impressao }}</div>
+    <div>Total de Cliques: {{ total_cliques }}</div>
+    <div>CTR (Taxa de Cliques): {{ ctr|round(2) }}%</div>
+    <div>Posição Média: {{ posicao_media|round(2) }}</div>
+    <div>Novos Usuários: {{ novos_usuarios }}</div>
+    <div>Conversões: {{ conversoes }}</div>
+    <div>Taxa de Conversão: {{ taxa_conversao|round(2) }}%</div>
+    <div>Receita: R$ {{ receita|round(2) }}</div>
+    <div>Ticket Médio: R$ {{ ticket_medio|round(2) }}</div>
+    <div>Total de Sessões: {{ total_sessoes }}</div>
+    <div>Origem do Tráfego: {{ origem_trafego }}</div>
+</div>
+<h3>Prévia dos dados importados</h3>
+<h3>Visualização gráfica</h3>
+<canvas id="graficoMetrica" height="100"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('graficoMetrica');
+    const grafico = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Impressões', 'Cliques', 'Conversões', 'Sessões', 'Novos Usuários'],
+            datasets: [{
+                label: 'Métricas SEO',
+                data: [
+                    {{ total_impressao }},
+                    {{ total_cliques }},
+                    {{ conversoes }},
+                    {{ total_sessoes }},
+                    {{ novos_usuarios }}
+                ],
+                backgroundColor: [
+                    '#569cd6',
+                    '#c586c0',
+                    '#b5cea8',
+                    '#dcdcaa',
+                    '#ce9178'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333' }
+                },
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333' }
+                }
+            }
+        }
+    });
+</script>
+<h3>Distribuição de Conversões</h3>
+<canvas id="graficoPizzaConversoes" height="100"></canvas>
+
+<h3>Receita ao longo do tempo (linhas do CSV)</h3>
+<canvas id="graficoLinhaReceita" height="100"></canvas>
+<script>
+    // Linha - Receita por linha (índice)
+    const linhaCtx = document.getElementById('graficoLinhaReceita');
+    const dadosReceita = {{ rows|tojson }};
+    const receitaPorLinha = dadosReceita.map(r => parseFloat(r[5]) || 0);  // coluna 5 = Receita
+
+    new Chart(linhaCtx, {
+        type: 'line',
+        data: {
+            labels: receitaPorLinha.map((_, i) => i + 1),
+            datasets: [{
+                label: 'Receita por linha',
+                data: receitaPorLinha,
+                fill: false,
+                borderColor: '#9cdcfe',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: '#ffffff' }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333' }
+                },
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333' }
+                }
+            }
+        }
+    });
+</script>
+<table border="1">
+    <thead>
+        <tr>
+            {% for header in headers %}
+                <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            {% for cell in row %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Calculadora de ROI{% endblock %}
+{% block content %}
+<h2>Calculadora de ROI</h2>
+<form method="POST">
+    <input type="number" name="receita" step="0.01" placeholder="Receita líquida (R$)" required><br>
+    <input type="number" name="custo" step="0.01" placeholder="Custo do investimento (R$)" required><br>
+    <button type="submit">Calcular</button>
+</form>
+{% if resultado %}
+    <h3>{{ resultado }}</h3>
+{% endif %}
+{% endblock %}

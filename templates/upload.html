@@ -1,16 +1,9 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
+{% block title %}Importar CSV{% endblock %}
 {% block content %}
-<div class="container">
-    <h2>Importar dados CSV</h2>
-    <form method="post" enctype="multipart/form-data">
-        <label for="file">Escolha o arquivo CSV:</label>
-        <input type="file" name="file" accept=".csv" required>
-        <button type="submit">Enviar</button>
-    </form>
-
-    {% if sucesso %}
-        <p style="color:green; margin-top: 1rem;">✅ Arquivo enviado com sucesso!</p>
-    {% endif %}
-</div>
+<h2>Importar arquivo CSV</h2>
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="csv_file" accept=".csv" required><br>
+    <button type="submit">Enviar</button>
+</form>
 {% endblock %}

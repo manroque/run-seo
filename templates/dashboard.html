@@ -1,11 +1,15 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>RunSEO - Dashboard</title>
-</head>
-<body>
-    <h1>Bem-vindo ao painel RunSEO</h1>
-</body>
-</html>
-
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Seus uploads</h2>
+<a href="{{ url_for('upload') }}">Novo upload</a>
+<ul>
+    {% for upload in uploads %}
+        <li>
+            <a href="{{ url_for('insights', upload_id=upload.id) }}">{{ upload.filename }}</a> ({{ upload.upload_date.strftime('%d/%m/%Y') }})
+        </li>
+    {% else %}
+        <p>Você ainda não enviou nenhum arquivo.</p>
+    {% endfor %}
+</ul>
+{% endblock %}
