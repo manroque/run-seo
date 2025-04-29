@@ -9,21 +9,24 @@ from models import db, User, Upload
 
 app = Flask(__name__)
 
-# Configurações
+# Configurações essenciais
 app.config['SECRET_KEY'] = 'chave_secreta_runseo'
 
-# Crie a pasta instance para banco (evita problemas de permissão no Railway)
-if not os.path.exists('instance'):
-    os.makedirs('instance')
+# Garante que a pasta instance existe antes de configurar o banco
+INSTANCE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance')
+if not os.path.exists(INSTANCE_PATH):
+    os.makedirs(INSTANCE_PATH)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/runseo.db'
+# Banco de dados SQLite dentro da pasta instance
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(INSTANCE_PATH, 'runseo.db')
 
-app.config['UPLOAD_FOLDER'] = 'uploads'
+# Pasta de uploads
+UPLOAD_PATH = os.path.join(INSTANCE_PATH, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_PATH
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
 
-# Crie a pasta uploads se não existir
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
+if not os.path.exists(UPLOAD_PATH):
+    os.makedirs(UPLOAD_PATH)
 
 # Inicializa banco e login
 db.init_app(app)
@@ -33,7 +36,7 @@ login_manager.login_view = 'login'
 login_manager.login_message = "Por favor, faça login para acessar esta página."
 login_manager.init_app(app)
 
-# Cria tabelas
+# Cria tabelas do banco
 with app.app_context():
     db.create_all()
 
