@@ -19,6 +19,8 @@ os.makedirs(UPLOAD_PATH, exist_ok=True)
 # === CONFIGURAÇÃO DO APP FLASK ===
 
 app = Flask(__name__)
+print("=== Flask app carregado com sucesso ===") 
+
 app.config['SECRET_KEY'] = 'chave_secreta_runseo'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(INSTANCE_PATH, 'runseo.db')
 app.config['UPLOAD_FOLDER'] = UPLOAD_PATH
