@@ -163,8 +163,3 @@ def roi():
             roi_valor = (receita - custo) / custo
             resultado = f"ROI: {roi_valor:.2f} ({roi_valor * 100:.2f}%)"
     return render_template('roi.html', resultado=resultado)
-
-if __name__ == '__main__':
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
