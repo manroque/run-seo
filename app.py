@@ -7,124 +7,149 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 from models import db, User, Upload
 
-# === CONFIGURAÇÃO DE CAMINHOS E PASTAS ===
+# === CONFIGURAÇÃO DE PASTAS E CAMINHOS ===
 
 # Caminho absoluto da raiz do projeto
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-# Caminho absoluto para a pasta 'instance' (para banco e uploads)
+# Pasta 'instance' para armazenar banco e uploads (garante permissão de escrita no Railway)
 INSTANCE_PATH = os.path.join(BASE_DIR, 'instance')
-os.makedirs(INSTANCE_PATH, exist_ok=True)  # Garante que a pasta existe
+os.makedirs(INSTANCE_PATH, exist_ok=True)  # Cria a pasta se não existir
 
-# Caminho absoluto para a pasta de uploads dentro de 'instance'
+# Pasta para uploads dentro de 'instance'
 UPLOAD_PATH = os.path.join(INSTANCE_PATH, 'uploads')
-os.makedirs(UPLOAD_PATH, exist_ok=True)  # Garante que a pasta existe
+os.makedirs(UPLOAD_PATH, exist_ok=True)  # Cria a pasta se não existir
 
-# === CONFIGURAÇÃO DO APP FLASK ===
+# === CONFIGURAÇÃO DO FLASK ===
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'chave_secreta_runseo'
+app.config['SECRET_KEY'] = 'chave_secreta_runseo'  # Defina uma chave secreta segura para produção
 
-# Banco de dados SQLite dentro da pasta 'instance'
+# Configura o banco SQLite dentro da pasta instance
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(INSTANCE_PATH, 'runseo.db')
 
-# Uploads dentro da pasta 'instance/uploads'
+# Configura a pasta de uploads e tamanho máximo de arquivo (10MB)
 app.config['UPLOAD_FOLDER'] = UPLOAD_PATH
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 
 # === INICIALIZAÇÃO DO BANCO E LOGIN ===
 
 db.init_app(app)
 
 login_manager = LoginManager()
-login_manager.login_view = 'login'
+login_manager.login_view = 'login'  # Redireciona para login se não autenticado
 login_manager.login_message = "Por favor, faça login para acessar esta página."
 login_manager.init_app(app)
 
-# Cria as tabelas do banco de dados se não existirem
+# Cria as tabelas do banco se não existirem
 with app.app_context():
     db.create_all()
 
-# === AUTENTICAÇÃO ===
+# === FUNÇÃO PARA CARREGAR USUÁRIO NA SESSÃO ===
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# === ROTAS PRINCIPAIS ===
+# === ROTAS ===
 
 @app.route('/')
 def home():
+    # Redireciona para login
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    # Cadastro de usuário
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+
+        # Verifica se email já existe
         if User.query.filter_by(email=email).first():
             flash('E-mail já registrado.')
             return redirect(url_for('register'))
+
+        # Cria hash da senha para segurança
         hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
+
+        # Cria novo usuário e salva no banco
         new_user = User(email=email, password=hashed_pw)
         db.session.add(new_user)
         db.session.commit()
+
         flash('Cadastro realizado com sucesso. Faça login.')
         return redirect(url_for('login'))
+
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Login de usuário
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+
         user = User.query.filter_by(email=email).first()
+
+        # Verifica usuário e senha
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('dashboard'))
+
         flash('Credenciais inválidas.')
+
     return render_template('login.html')
 
 @app.route('/logout')
 @login_required
 def logout():
+    # Logout do usuário
     logout_user()
     return redirect(url_for('login'))
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Página principal do usuário com lista de uploads
     uploads = Upload.query.filter_by(user_id=current_user.id).order_by(Upload.upload_date.desc()).all()
     return render_template('dashboard.html', uploads=uploads)
-
-# === UPLOAD DE CSV ===
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
+    # Upload de arquivo CSV
     if request.method == 'POST':
         file = request.files.get('csv_file')
+
+        # Verifica se arquivo enviado e se é CSV
         if file and file.filename.endswith('.csv'):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)  # Salva o arquivo no caminho correto
+            file.save(filepath)  # Salva arquivo no diretório correto
 
-            # Lê o CSV e salva um preview no banco
+            # Lê o CSV para gerar preview
             df = pd.read_csv(filepath)
             preview = df.head().to_json()
+
+            # Salva upload no banco
             new_upload = Upload(filename=filename, user_id=current_user.id, content_preview=preview)
             db.session.add(new_upload)
             db.session.commit()
-            return redirect(url_for('insights', upload_id=new_upload.id))
-        flash('Por favor, envie um arquivo CSV válido.')
-    return render_template('upload.html')
 
-# === DASHBOARD DE INSIGHTS ===
+            return redirect(url_for('insights', upload_id=new_upload.id))
+
+        flash('Por favor, envie um arquivo CSV válido.')
+
+    return render_template('upload.html')
 
 @app.route('/insights/<int:upload_id>')
 @login_required
 def insights(upload_id):
+    # Página de insights baseada no upload CSV
     upload = Upload.query.get_or_404(upload_id)
+
+    # Verifica se upload pertence ao usuário logado
     if upload.user_id != current_user.id:
         flash('Acesso negado.')
         return redirect(url_for('dashboard'))
@@ -132,6 +157,7 @@ def insights(upload_id):
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], upload.filename)
 
     try:
+        # Lê o CSV com opções para lidar com diferentes formatos
         df_raw = pd.read_csv(filepath, sep=None, engine='python', encoding='utf-8', decimal=',', thousands='.')
     except Exception as e:
         flash(f'Erro ao ler o CSV: {str(e)}')
@@ -140,6 +166,7 @@ def insights(upload_id):
     df = df_raw.copy()
     df = df.apply(pd.to_numeric, errors='coerce')
 
+    # Função para pegar coluna por nomes possíveis ou índice fallback
     def get_col(df, names, fallback_idx):
         for name in names:
             if name in df.columns:
@@ -149,6 +176,7 @@ def insights(upload_id):
         return pd.Series([0]*len(df))
 
     try:
+        # Calcula métricas principais
         total_impressao = get_col(df, ['Impressões'], 0).sum()
         total_cliques = get_col(df, ['Cliques'], 1).sum()
         ctr = (total_cliques / total_impressao) * 100 if total_impressao > 0 else 0
@@ -179,11 +207,10 @@ def insights(upload_id):
                            headers=list(df_raw.columns),
                            rows=df_raw.values.tolist())
 
-# === CÁLCULO DE ROI ===
-
 @app.route('/roi', methods=['GET', 'POST'])
 @login_required
 def roi():
+    # Página para cálculo de ROI
     resultado = None
     if request.method == 'POST':
         receita = float(request.form['receita'])
@@ -195,14 +222,16 @@ def roi():
             resultado = f"ROI: {roi_valor:.2f} ({roi_valor * 100:.2f}%)"
     return render_template('roi.html', resultado=resultado)
 
-# == ROTA TESTE RAILWAY == 
+# Rota simples para teste de funcionamento no Railway
 @app.route('/ping')
 def ping():
     return 'pong'
 
-# === INICIALIZAÇÃO DO SERVIDOR (RAILWAY/PRODUÇÃO) ===
+print("==== APP PRONTO PARA SERVIDOR ====")
+
+# === INICIALIZAÇÃO DO SERVIDOR ===
 
 if __name__ == '__main__':
-    # Railway define a porta via variável de ambiente PORT
+    # Porta definida pela variável de ambiente PORT no Railway (ou 5000 local)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
