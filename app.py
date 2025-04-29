@@ -9,24 +9,22 @@ from models import db, User, Upload
 
 app = Flask(__name__)
 
-# Configurações essenciais
-app.config['SECRET_KEY'] = 'chave_secreta_runseo'
-
-# Garante que a pasta instance existe antes de configurar o banco
-INSTANCE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance')
+# Caminho absoluto para a pasta instance (garante permissão de escrita no Railway)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+INSTANCE_PATH = os.path.join(BASE_DIR, 'instance')
 if not os.path.exists(INSTANCE_PATH):
     os.makedirs(INSTANCE_PATH)
 
-# Banco de dados SQLite dentro da pasta instance
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(INSTANCE_PATH, 'runseo.db')
-
-# Pasta de uploads
+# Caminho absoluto para uploads
 UPLOAD_PATH = os.path.join(INSTANCE_PATH, 'uploads')
-app.config['UPLOAD_FOLDER'] = UPLOAD_PATH
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
-
 if not os.path.exists(UPLOAD_PATH):
     os.makedirs(UPLOAD_PATH)
+
+# Configurações Flask
+app.config['SECRET_KEY'] = 'chave_secreta_runseo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(INSTANCE_PATH, 'runseo.db')
+app.config['UPLOAD_FOLDER'] = UPLOAD_PATH
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
 
 # Inicializa banco e login
 db.init_app(app)
