@@ -10,6 +10,12 @@ from models import db, User, Upload
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'chave_secreta_runseo'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///runseo.db'
+if not os.path.exists('instance'):
+    os.makedirs('instance')
+
+with app.app_context():
+    db.create_all()
+    
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB máx
 
