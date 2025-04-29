@@ -74,7 +74,7 @@ source venv/bin/activate
 4. Instale as bibliotecas necessárias
 Certifique-se de estar na pasta do projeto e digite:
 
-pip install -r requeriments.txt
+pip install -r requirements.txt
 
 6. Crie o banco de dados (apenas na primeira vez)
 Abra o terminal Python:
@@ -108,6 +108,7 @@ Navegador	Chrome / Edge / Firefox (moderno)
 Problemas comuns e como resolver
 
 Sinta-se à vontade para enviar melhorias, abrir issues ou sugerir novas funcionalidades!
+
 
 Licença
 Este projeto foi desenvolvido para fins educacionais no Projeto Integrador da UNIVESP.
