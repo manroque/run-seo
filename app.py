@@ -9,14 +9,11 @@ from models import db, User, Upload
 
 # === CONFIGURAÇÃO DE CAMINHOS E PASTAS ===
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
-# Pasta instance para banco e uploads
-INSTANCE_PATH = os.path.join(BASE_DIR, 'instance')
-os.makedirs(INSTANCE_PATH, exist_ok=True)
-
-# Pasta uploads dentro de instance
+# Usar /tmp, pois Railway permite escrita lá
+INSTANCE_PATH = '/tmp/runseo_instance'
 UPLOAD_PATH = os.path.join(INSTANCE_PATH, 'uploads')
+
+# Garante que as pastas existam
 os.makedirs(UPLOAD_PATH, exist_ok=True)
 
 # === CONFIGURAÇÃO DO APP FLASK ===
@@ -35,7 +32,6 @@ login_manager.login_view = 'login'
 login_manager.login_message = "Por favor, faça login para acessar esta página."
 login_manager.init_app(app)
 
-# Cria as tabelas do banco se não existirem
 with app.app_context():
     db.create_all()
 
@@ -186,7 +182,7 @@ def roi():
 def ping():
     return 'pong'
 
-# === INICIALIZAÇÃO DO SERVIDOR (apenas para testes locais) ===
+# === INICIALIZAÇÃO DO SERVIDOR (local) ===
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
