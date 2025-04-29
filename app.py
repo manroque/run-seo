@@ -195,6 +195,11 @@ def roi():
             resultado = f"ROI: {roi_valor:.2f} ({roi_valor * 100:.2f}%)"
     return render_template('roi.html', resultado=resultado)
 
+# == ROTA TESTE RAILWAY == 
+@app.route('/ping')
+def ping():
+    return 'pong'
+
 # === INICIALIZAÇÃO DO SERVIDOR (RAILWAY/PRODUÇÃO) ===
 
 if __name__ == '__main__':
