@@ -1,24 +1,31 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, send_file
+import os
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import os
 import pandas as pd
 from models import db, User, Upload
 
 app = Flask(__name__)
+
+# Configurações
 app.config['SECRET_KEY'] = 'chave_secreta_runseo'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///runseo.db'
+
+# Crie a pasta instance para banco (evita problemas de permissão no Railway)
 if not os.path.exists('instance'):
     os.makedirs('instance')
 
-with app.app_context():
-    db.create_all()
-    
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB máx
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/runseo.db'
 
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
+
+# Crie a pasta uploads se não existir
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+# Inicializa banco e login
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -26,6 +33,7 @@ login_manager.login_view = 'login'
 login_manager.login_message = "Por favor, faça login para acessar esta página."
 login_manager.init_app(app)
 
+# Cria tabelas
 with app.app_context():
     db.create_all()
 
@@ -81,15 +89,14 @@ def dashboard():
 @login_required
 def upload():
     if request.method == 'POST':
-        file = request.files['csv_file']
+        file = request.files.get('csv_file')
         if file and file.filename.endswith('.csv'):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
             file.save(filepath)
 
             df = pd.read_csv(filepath)
-            preview = df.head().to_json()  # opcional para salvar
+            preview = df.head().to_json()
             new_upload = Upload(filename=filename, user_id=current_user.id, content_preview=preview)
             db.session.add(new_upload)
             db.session.commit()
@@ -114,9 +121,8 @@ def insights(upload_id):
         return redirect(url_for('dashboard'))
 
     df = df_raw.copy()
-    df = df.apply(pd.to_numeric, errors='coerce')  # tenta converter tudo que puder para numérico
+    df = df.apply(pd.to_numeric, errors='coerce')
 
-    # Identificação automática com fallback para índice
     def get_col(df, names, fallback_idx):
         for name in names:
             if name in df.columns:
@@ -171,6 +177,5 @@ def roi():
     return render_template('roi.html', resultado=resultado)
 
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
