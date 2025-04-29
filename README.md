@@ -74,7 +74,7 @@ source venv/bin/activate
 4. Instale as bibliotecas necessárias
 Certifique-se de estar na pasta do projeto e digite:
 
-pip install -r requirements.txt
+pip install -r requeriments.txt
 
 6. Crie o banco de dados (apenas na primeira vez)
 Abra o terminal Python:
