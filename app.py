@@ -161,7 +161,6 @@ def insights(upload_id):
                            ticket_medio=ticket_medio,
                            receita_total=receita,
                            total_sessoes=total_sessoes,
-                           origem_trafego="Orgânico",
                            headers=list(df_raw.columns),
                            rows=df_raw.values.tolist())
 
