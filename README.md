@@ -2,6 +2,10 @@
 
 **RunSEO** é uma aplicação web desenvolvida com Python e Flask que ajuda empresas e profissionais de marketing a analisarem o desempenho de estratégias de SEO e calcularem automaticamente o ROI (Retorno sobre o Investimento).
 
+<p align="center">
+  <img src="./imgs/run-seo.gif" alt="Demonstração do Dashboard do RunSEO" width="800"/>
+</p>
+
 ---
 
 ## 🚀 Funcionalidades
