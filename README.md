@@ -1,119 +1,165 @@
-# RunSEO – Análise de SEO e ROI
-RunSEO é uma aplicação web desenvolvida com Python e Flask para ajudar empresas a analisarem os resultados das estratégias de SEO (Search Engine Optimization) e calcular o ROI (Retorno sobre o Investimento).
+# 📊 RunSEO – Análise de SEO e ROI
 
-# Funcionalidades
-Cadastro e login de usuários
-Upload de arquivos CSV com dados de SEO e desempenho
-Dashboard com gráficos interativos (cliques, impressões, CTR, receita, etc.)
-Cálculo automático de ROI
+**RunSEO** é uma aplicação web desenvolvida com Python e Flask que ajuda empresas e profissionais de marketing a analisarem o desempenho de estratégias de SEO e calcularem automaticamente o ROI (Retorno sobre o Investimento).
 
-# Pré-requisitos
-Antes de começar, você precisa ter instalado no seu computador:
-Python 3.10 ou superior
-Git (opcional, mas recomendado)
+---
 
-# Verificar se o Git está instalado:
-    - Digite `git --version` no terminal (PowerShell ou Prompt de Comando).
-    - Se der o mesmo erro, **você realmente não tem o Git instalado**.
+## 🚀 Funcionalidades
 
-# Instalar o Git:
-- Acesse https://git-scm.com/downloads.
-- Baixe e instale a versão para seu sistema operacional.
-- **Importante:** Durante a instalação, aceite a opção de "Adicionar Git ao PATH" (é uma telinha com várias opções avançadas — escolha a padrão ou a recomendada).
-- **Após a instalação:**
-    - Feche o terminal/PowerShell.
-    - Abra novamente.
-    - Teste com: `git --version`.
-    - Agora deve aparecer algo como `git version 2.43.0.windows.1` (ou similar).
+- ✅ Cadastro e login de usuários
+- 📂 Upload de arquivos CSV com dados do Google Search Console e GA4
+- 📊 Dashboard com métricas como cliques, impressões, CTR, posição média, sessõesconversões e receita
+- 💰 Cálculo automático de ROI e ticket médio
 
-# Instalar python 
-Download pelo navegador
-Se você quiser baixar e instalar via browser:
+---
 
-- Acesse https://www.python.org/downloads/.
-- Clique no botão **Download Python 3.x.x**.
-- Execute o instalador baixado.
+## 🧩 Tecnologias Utilizadas
 
-Atenção visionária
-SEMPRE marque a caixinha** "**Add Python 3.x to PATH**" antes de clicar em **Install Now**.
-Se esquecer disso, a vida vai ficar um pouco mais difícil depois.
+- Python 3.10+
+- Flask
+- SQLAlchemy
+- Flask-Login
+- Pandas
+- Gunicorn (para deploy em produção)
+- Railway (hospedagem)
 
-Forma "oficial" e segura: usando o **winget**
+---
 
-O `winget` é o **Gerenciador de Pacotes** oficial do Windows, tipo um "apt-get" para Windows.
-Digite:
+## 🖥️ Pré-requisitos
 
-- Se pedir confirmação, digite `Y` e pressione `Enter`.
-- Se o `winget` não funcionar, veja a dica bônus no final.
+Antes de rodar o projeto, verifique se você possui:
 
-# Passo a passo para rodar o projeto na sua máquina local
-1. Clone o repositório
-Se você tem Git instalado, abra o terminal e digite:
+- [Python 3.10+](https://www.python.org/downloads/)
+- [Git](https://git-scm.com/downloads) (opcional, mas recomendado)
 
+### 📦 Instalação do Python (Windows)
+
+1. Acesse [python.org/downloads](https://www.python.org/downloads/)
+2. Baixe a versão recomendada (Python 3.10 ou superior)
+3. Marque **"Add Python to PATH"** antes de clicar em *Install Now*
+
+### 🛠 Verifique a instalação
+
+```bash
+python --version
+pip --version
+```
+
+---
+
+## ⚙️ Como rodar o projeto localmente
+
+### 1. Clone o repositório
+
+```bash
 git clone https://github.com/manroque/run-seo
-cd runseo
+cd run-seo
+```
+
 Ou baixe o código como ZIP e extraia os arquivos.
 
-2. Instale o Python (caso ainda não tenha)
-Acesse: https://www.python.org/downloads/
-Baixe a versão Python 3.10 ou superior
-Durante a instalação, marque a opção "Add Python to PATH"
-Para verificar se está tudo certo, digite no terminal:
+### 2. Crie um ambiente virtual (recomendado não obrigatório)
 
-python --version
-
-3. Crie e ative um ambiente virtual (opcional, mas recomendado), digite no terminal
-    
+```bash
 python -m venv venv
+```
 
-# Ativar no Windows: 
-venv\Scripts\activate
-# Ativar no Mac/Linux:
-source venv/bin/activate
+- No **Windows**:
+    
+    ```bash
+    venv\Scripts\activate
+    ```
+    
 
-4. Instale as bibliotecas necessárias
-Certifique-se de estar na pasta do projeto e digite:
+### 3. Instale as dependências
 
+```bash
 pip install -r requirements.txt
+```
 
-6. Crie o banco de dados (apenas na primeira vez)
-Abra o terminal Python:
+### 4. Configure o banco de dados
 
-python
+O banco será criado automaticamente ao iniciar o app. Certifique-se de que a pasta `instance/` exista:
 
-Dentro do terminal interativo, digite:
+```bash
+mkdir instance
 
-from app import db
-db.create_all()
-exit()
+```
 
-⚠️ Se a pasta instance/ não existir, crie uma manualmente no mesmo nível de app.py.
+Ou crie manualmente no mesmo nível de `app.py`.
 
-6. Rode o sistema localmente
-Com tudo pronto, execute:
+---
 
+## ▶️ Executando a aplicação
+
+```bash
 python app.py
+```
 
-Você verá algo como:
- * Running on http://127.0.0.1:5000/
-   
-Abra o navegador e acesse:
-http://127.0.0.1:5000/
+Abra o navegador e acesse: [http://127.0.0.1:8080](http://127.0.0.1:8080/)
 
-Requisitos do sistema
-Certifique-se de que seu sistema possui:
-Python	3.10
-Pip	21.0
-Navegador	Chrome / Edge / Firefox (moderno)
-Problemas comuns e como resolver
+---
 
-Modelo CSV: faça o download [clicando aqui](https://github.com/manroque/run-seo/commit/385837e2bbbff3e35631fe5a7fd5a03df877e7d8)
+## 📄 Modelo de CSV
 
-Sinta-se à vontade para enviar melhorias, abrir issues ou sugerir novas funcionalidades!
+Você pode fazer o upload de arquivos CSV com colunas como:
 
-Licença
-Este projeto foi desenvolvido para fins educacionais no Projeto Integrador da UNIVESP.
-Você pode usar, modificar e adaptar livremente com créditos ao autor.
+- `Impressões`, `Cliques`, `CTR`, `Posição Média`
+- `Novos Usuários`, `Sessões`, `Conversões`
+- `Receita`, `Ticket Médio`, `Taxa de Conversão`
+- `Dispositivo`, `URL`, `Palavras-chave`, `Origem/Mídia`
 
+| Coluna | Tipo |
+| --- | --- |
+| data | `YYYY-MM-DD` |
+| cliques | Inteiro |
+| impressões | Inteiro |
+| ctr | Percentual (float) |
+| posicao_media | Float |
+| dispositivo | desktop / mobile / tablet |
+| url | String |
+| keywords | String |
+| novos_usuarios | Inteiro |
+| sessoes | Inteiro |
+| transacoes | Inteiro |
+| receita | Float |
+| taxa_conversao | Percentual (float) |
+| ticket_medio | Float |
+| origem_midia | String |
 
+📥 [Baixe o modelo de CSV aqui](https://drive.google.com/file/d/1xK90cpN-1i6cNGqRl6BEuviOF3pdA4U2/view?usp=sharing)
 
+---
+
+## 💻 Requisitos do sistema
+
+- Python 3.10+
+- Pip 21+
+- Navegador moderno (Chrome, Edge ou Firefox)
+
+---
+
+## 🛠 Problemas comuns
+
+- ❌ *Erro ao subir o app?* Verifique se você ativou o ambiente virtual e instalou as dependências corretamente.
+- ❌ *Template não encontrado?* Confirme se a pasta `templates/` está presente e contém os arquivos `.html`.
+- ❌ **`ModuleNotFoundError`** ao rodar o app → verifique se o ambiente virtual está ativado
+- ❌ **Erro 502 no Railway** → certifique-se de usar `gunicorn` e bind na porta `0.0.0.0:$PORT`
+- 📂 **Banco de dados não criado** → execute `db.create_all()` no terminal Python
+
+---
+
+## 🤝 Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para:
+
+- Criar issues com sugestões ou bugs
+- Fazer um fork e enviar pull requests
+
+---
+
+## 📜 Licença
+
+Este projeto foi desenvolvido para fins educacionais no **Projeto Integrador da [UNIVESP](https://univesp.br/)**.
+
+Você pode usar, modificar e redistribuir livremente com os devidos créditos.
