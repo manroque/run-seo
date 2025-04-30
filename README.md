@@ -107,8 +107,9 @@ Pip	21.0
 Navegador	Chrome / Edge / Firefox (moderno)
 Problemas comuns e como resolver
 
-Sinta-se à vontade para enviar melhorias, abrir issues ou sugerir novas funcionalidades!
+Modelo CSV: faça o download [clicando aqui](https://github.com/manroque/run-seo/commit/385837e2bbbff3e35631fe5a7fd5a03df877e7d8)
 
+Sinta-se à vontade para enviar melhorias, abrir issues ou sugerir novas funcionalidades!
 
 Licença
 Este projeto foi desenvolvido para fins educacionais no Projeto Integrador da UNIVESP.
